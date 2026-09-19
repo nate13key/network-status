@@ -1,4 +1,4 @@
-services:
+:services:
   db:
     image: postgres:18
     env_file: .env
@@ -11,6 +11,17 @@ services:
       timeout: 3s
       retries: 5
     restart: unless-stopped
+  worker:
+    build: ./worker
+    environment:
+      TARGET: 8.8.8.8
+      PGHOST: db
+      PGUSER: ${POSTGRES_USER}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      PGDATABASE: ${POSTGRES_DB}
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   pgdata:
