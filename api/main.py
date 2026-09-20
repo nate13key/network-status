@@ -1,4 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException, Response
+import psycopg
+from psycopg.rows import dict_row
+
 
 app = FastAPI()
 
