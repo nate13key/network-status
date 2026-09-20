@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>network-status</title>
+  <style>
+    :root { color-scheme: light dark; }
+    [hidden] { display: none !important; }
+    body { font-family: system-ui, sans-serif; max-width: 32rem; margin: 3rem auto; padding: 0 1rem; }
+    dl { display: grid; grid-template-columns: max-content 1fr; gap: .5rem 1.5rem; }
+    dt { opacity: .7; }
+    dd { margin: 0; }
+    .ok { color: #1a7f37; font-weight: 600; }
+    .fail { color: #cf222e; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>network-status</h1>
+  <h2>Latest DNS check</h2>
+  <p id="message">Loading…</p>
+  <dl id="result" hidden>
+    <dt>Target</dt><dd id="target"></dd>
+    <dt>Status</dt><dd id="status"></dd>
+    <dt>Latency</dt><dd id="latency"></dd>
+    <dt>Checked</dt><dd id="checked"></dd>
+    <dt>Error</dt><dd id="error"></dd>
+  </dl>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    async function load() {
+      try {
+        const res = await fetch("/api/latest/dns", { cache: "no-store" });
+        if (!res.ok) throw new Error(`API returned ${res.status}`);
+        const d = await res.json();
+
+        $("target").textContent = d.target;
+        $("status").textContent = d.success ? "OK" : "FAILED";
+        $("status").className = d.success ? "ok" : "fail";
+        $("latency").textContent = d.latency_ms == null ? "—" : `${d.latency_ms} ms`;
+        $("checked").textContent = new Date(d.ts).toLocaleString();
+        $("error").textContent = d.error ?? "—";
+
+        $("message").hidden = true;
+        $("result").hidden = false;
+      } catch (err) {
+        $("message").textContent = `Could not load data: ${err.message}`;
+      }
+    }
+
+    load();
+  </script>
+</body>
+</html>
