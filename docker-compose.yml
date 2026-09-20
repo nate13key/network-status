@@ -27,5 +27,9 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
+  api:
+    build: ./api
+    restart: unless-stopped
+
 volumes:
   pgdata:
